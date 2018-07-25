@@ -7,7 +7,7 @@ sig Artesao{
 }
 
 sig Loja {
-	produtos: some Produto
+	produto: set Produto
 }
 
 
@@ -24,42 +24,68 @@ sig Compra {
 	
 }
 
+abstract sig Produto{
+
+}
+
 sig Metal extends Produto{}
 sig Couro extends Produto {}
 sig Vime extends Produto{}
 sig PapelMache extends Produto {}
 
 
-abstract sig Produto{
-
-}
-
 fact{
-	#(Artesao )= 2
+	#(Artesao )= 5
 
-	all c1,c2 : Cliente  | c1 != c2 implies c1.compras != c2.compras
-	
-}
-
-fact {
+	all l:Loja | one l.~lojas
+	all c1,c2 : Cliente  |verificaClienteCompra[c1,c2]
 	all c: Compra | one c.~compras
+	all l1,l2: Loja | verificaLojaProduto[l1,l2]
+	all l:Loja | one l.produto
+	all l:Produto | one l.~produto
+	all c1,c2:Compra | verificaCompraProduto[c1,c2]
+	all p:Produto | one p.~produtos
 }
+
+
+--Predicado referente a relação entre cliente e compra
+pred verificaClienteCompra[c1,c2:Cliente]{
+	 c1 != c2 implies c1.compras != c2.compras
+}
+
+-- predicado referente a relação entre loja e produto
+pred verificaLojaProduto[l1,l2:Loja]{
+	l1 != l2 implies l1.produto != l2.produto
+}
+
+-- Predicado referente a relção entre compra e produto
+pred verificaCompraProduto[c1,c2:Compra]{
+	c1 != c2 implies c1.produtos != c2.produtos
+}
+
 
 
 pred temFavorito[f:Loja]{
-	some f.produtos
+	some f.produto
 }
 
+---------------------------------ASSERTS--------------------------------------------------------
 
+-- verifica se toda loja possui pelo menos um produto
+assert lojaTemProdutos{
+	all l:Loja | some l.produto
+}
 
 -- Verifica se um produto está disponível
 
 -------- Testes e Runs ---------
 
--- Teste se toda loja possui um unico dono
+check lojaTemProdutos for 10
+
+
 
 
 pred show[]{
 }
 
-run show for 10
+run show for 5
