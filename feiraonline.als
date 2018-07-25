@@ -13,7 +13,7 @@ sig Loja {
 
 sig Cliente {
 	favoritos: set Loja,
-	historicoDeCompras: set Compra
+	compras: set Compra
 	--historico: compras do usuario 
 }
 
@@ -21,6 +21,7 @@ sig Cliente {
 sig Compra {
 	--frete: 
 	produtos: set Produto
+	
 }
 
 sig Metal extends Produto{}
@@ -36,8 +37,12 @@ abstract sig Produto{
 fact{
 	#(Artesao )= 2
 
-	one cliente:Cliente | one cliente.historicoDeCompras
+	all c1,c2 : Cliente  | c1 != c2 implies c1.compras != c2.compras
+	
+}
 
+fact {
+	all c: Compra | one c.~compras
 }
 
 
@@ -54,12 +59,7 @@ pred temFavorito[f:Loja]{
 -- Teste se toda loja possui um unico dono
 
 
-
-
-
-
-
 pred show[]{
 }
 
-run show for 5
+run show for 10
