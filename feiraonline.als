@@ -22,7 +22,39 @@ sig Produto{
 
 }
 
+pred temFavorito[f:Loja]{
+	some f.produtos
+}
+
+
+
+-- Verifica se um produto está disponível
+
+-------- Testes e Runs ---------
+
+-- Teste se toda loja possui um unico dono
+assert testaDono {
+	all l:Loja | #(l.dono) = 1
+}
+
+-- Testa se o produtos está disponível --
+assert testaDisponibilidade{
+	all p:Produto | #(p) > 0
+}
+
+-- Teste se todos os produtos comprados estão no historico--
+assert testaHistorico{}
+
+-- Testa se o numero de produtos comprados satisfaz a condicao de frete livre--
+assert minProdutos{
+	produtosComprado:Produto | // testar aqui se produtosComprados >= 5
+}
+
+
+
+check testaFavoritos
+
 pred show[]{
 }
 
-check show for 2
+run show for 2
