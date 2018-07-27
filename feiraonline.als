@@ -8,12 +8,13 @@ sig Artesao {
 
 sig Loja {
 	produto: set Produto
+	-- itens: set Compra
 }
 
 sig Cliente {
 	favoritos: set Loja,
 	compras: set Compra
-	-- compras: histórico de compras do usuario 
+
 }
 
 sig Compra{
@@ -72,17 +73,17 @@ fact{
 
 --Predicado referente a relação entre cliente e compra
 pred verificaClienteCompra[c1,c2:Cliente] {
-	 c1 != c2 implies c1.compras != c2.compras
+	 c1 != c2 implies getComprasCliente[c1] != getComprasCliente[c2]
 }
 
 -- predicado referente a relação entre loja e produto
 pred verificaLojaProduto[l1,l2:Loja] {
-	l1 != l2 implies l1.produto != l2.produto
+	l1 != l2 implies getProdutoLoja[l1] != getProdutoLoja[l2]
 }
 
 -- Predicado referente a relação entre compra e produto
 pred verificaCompraProduto[c1,c2:Compra] {
-	c1 != c2 implies c1.produtos != c2.produtos
+	c1 != c2 implies getProdutosCompra[c1] != getProdutosCompra[c2]
 }
 
 pred temFavorito[f:Loja] {
@@ -90,37 +91,62 @@ pred temFavorito[f:Loja] {
 }
 
 pred temFreteProdutoMenorQue5[c:Compra]{
-	#c.produtos < 5 implies #c.frete = 1
+	#getProdutosCompra[c] < 5 implies #c.frete = 1
 }
 
  pred temFreteProdutoCouroMenorQue3[c:Compra] {
-	( #c.produtos.tipo & Couro < 3) implies #c.frete = 1 
+	( #getProdutosCompra[c].tipo & Couro < 3) implies #getFrete[c] = 1 
 }
 
 pred naoTemFrete[c:Compra] {
-	(#c.produtos > 4 and #c.produtos.tipo & Couro > 2) implies #c.frete = 0 
+	(#getProdutosCompra[c] > 4 and #getProdutosCompra[c].tipo & Couro > 2) implies #getFrete[c] = 0 
 }
 
+---------------------------------FUNÇÕES--------------------------------------------------------
 
 
 fun getProdutosCompra[c:Compra] : set Produto{
 	c.produtos
 }
 
+fun getComprasCliente[c:Cliente] : set Compra {
+	c.compras
+}
+
+fun getProdutoLoja[l:Loja] : set Produto{
+	l.produto
+}
+
+fun getFrete[c:Compra] : set Frete{
+	c.frete
+}
+
 ---------------------------------ASSERTS--------------------------------------------------------
 
 -- Verifica se toda Compra tem Frete
 assert compraTemFrete {
-	all c: Compra | one c.frete
+	all c: Compra | one c.frete or no c.frete
 }
--- Verifica se um produto está disponível
+
+assert produtoTemTipo {
+	all p:Produto | one p.tipo
+}
+
+assert artesaoTemLoja {
+	some a:Artesao | some a.lojas
+}
+
+assert lojaTemProduto{
+	some l:Loja | some l.produto
+}
 
 -------- Testes e Runs ---------
 
---check compraTemFrete for 10 na nova configuração esse teste não faz sentido
+check compraTemFrete for 10
+check produtoTemTipo for 5
+check artesaoTemLoja for 10
+check lojaTemProduto for 10
 
+pred show[] {}
 
-pred show[] {
-}
-
-run show for 10
+run show for 5
