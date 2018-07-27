@@ -16,20 +16,24 @@ sig Cliente {
 	-- compras: histórico de compras do usuario 
 }
 
-sig Compra { 
+sig Compra{
+	
 	produtos: set Produto,
-	frete: one Frete
+	frete : lone Frete
+}
+sig Frete{}
+
+sig Produto{
+
+	tipo: one Tipo
 }
 
-abstract sig Frete {}
-sig FreteGratis extends Frete {}
-sig FretePago extends Frete {}
+abstract sig Tipo{}
+sig Couro extends Tipo{}
+sig Metal extends Tipo{}
+sig Vime extends Tipo{}
+sig Papel extends Tipo{}
 
-abstract sig Produto{}
-sig Metal extends Produto {}
-sig Couro extends Produto {}
-sig Vime extends Produto {}
-sig PapelMache extends Produto {}
 
 fact {
 	#(Artesao) = 5
@@ -49,9 +53,22 @@ fact {
 -- Toda Compra possui um Produto único
 	all p: Produto | one p.~produtos
 -- Todo Produto pertence a exatamente uma Compra
-	all f: Frete | one f.~frete
+--	all f: Frete | one f.~frete
 -- Toda Compra possui um Frete
+	
 }
+
+fact{
+	
+	all t:Tipo | one t.~tipo
+	all p:Produto | one p.~produtos
+	all f:Frete | one f.~frete
+	
+	all c:Compra |  temFreteProdutoMenorQue5[c]
+	all c:Compra | naoTemFrete[c]
+	all c:Compra | temFreteProdutoCouroMenorQue3[c]
+}
+
 
 --Predicado referente a relação entre cliente e compra
 pred verificaClienteCompra[c1,c2:Cliente] {
@@ -72,6 +89,24 @@ pred temFavorito[f:Loja] {
 	some f.produto
 }
 
+pred temFreteProdutoMenorQue5[c:Compra]{
+	#c.produtos < 5 implies #c.frete = 1
+}
+
+ pred temFreteProdutoCouroMenorQue3[c:Compra] {
+	( #c.produtos.tipo & Couro < 3) implies #c.frete = 1 
+}
+
+pred naoTemFrete[c:Compra] {
+	(#c.produtos > 4 and #c.produtos.tipo & Couro > 2) implies #c.frete = 0 
+}
+
+
+
+fun getProdutosCompra[c:Compra] : set Produto{
+	c.produtos
+}
+
 ---------------------------------ASSERTS--------------------------------------------------------
 
 -- Verifica se toda Compra tem Frete
@@ -82,10 +117,10 @@ assert compraTemFrete {
 
 -------- Testes e Runs ---------
 
-check compraTemFrete for 10
+--check compraTemFrete for 10 na nova configuração esse teste não faz sentido
 
 
 pred show[] {
 }
 
-run show for 5
+run show for 10
