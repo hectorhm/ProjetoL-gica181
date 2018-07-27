@@ -17,7 +17,8 @@ sig Cliente {
 }
 
 sig Compra { 
-	produtos: set Produto
+	produtos: set Produto,
+	frete: one Frete
 }
 
 abstract sig Frete {}
@@ -31,23 +32,25 @@ sig Vime extends Produto {}
 sig PapelMache extends Produto {}
 
 fact {
-	#(Artesao )= 5
-	all l:Loja | one l.~lojas
+	#(Artesao) = 5
+	all l: Loja | one l.~lojas
 -- Toda Loja possui exatamente um Artesão
-	all l: Loja | some l.produto
--- Toda Loja possui pelo menos um Protudo
 	all c1,c2 : Cliente  |verificaClienteCompra[c1,c2]
 -- Todo Cliente possui uma Compra única
 	all c: Compra | one c.~compras
--- Toda Compra possui exatamente um Cliente
+-- Toda Compra pertence a exatamente um Cliente
+	all c: Compra | some c.produtos
+-- Toda Compra possui pelo menos um Produto
 	all l1,l2: Loja | verificaLojaProduto[l1,l2]
 -- Todo Loja possui um Produto único
-	all l:Produto | one l.~produto
--- Todo Produto possui um Cliente
+	all p: Produto | one p.~produto
+-- Todo Produto pertence a exatamente uma Loja
 	all c1,c2:Compra | verificaCompraProduto[c1,c2]
 -- Toda Compra possui um Produto único
-	all p:Produto | one p.~produtos
--- Todo Produto possui exatamente uma Loja
+	all p: Produto | one p.~produtos
+-- Todo Produto pertence a exatamente uma Compra
+	all f: Frete | one f.~frete
+-- Toda Compra possui um Frete
 }
 
 --Predicado referente a relação entre cliente e compra
@@ -60,7 +63,7 @@ pred verificaLojaProduto[l1,l2:Loja] {
 	l1 != l2 implies l1.produto != l2.produto
 }
 
--- Predicado referente a relção entre compra e produto
+-- Predicado referente a relação entre compra e produto
 pred verificaCompraProduto[c1,c2:Compra] {
 	c1 != c2 implies c1.produtos != c2.produtos
 }
@@ -71,19 +74,18 @@ pred temFavorito[f:Loja] {
 
 ---------------------------------ASSERTS--------------------------------------------------------
 
--- verifica se toda loja possui pelo menos um produto
-assert lojaTemProdutos {
-	all l:Loja | some l.produto
+-- Verifica se toda Compra tem Frete
+assert compraTemFrete {
+	all c: Compra | one c.frete
 }
-
 -- Verifica se um produto está disponível
 
 -------- Testes e Runs ---------
 
-check lojaTemProdutos for 10
+check compraTemFrete for 10
 
 
 pred show[] {
 }
 
-run show for 10
+run show for 5
