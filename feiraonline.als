@@ -1,8 +1,8 @@
 /**
 Grupo: Hector Medeiros
-             Larissa Amorim
-			 Redson Farias
- 			 Thallyson José
+       Larissa Amorim
+       Redson Farias
+       Thallyson José
 
  Projeto da disciplina Lógica aplicada a Computação do curso 
  de Ciência da Computação da UFCG, período 2018.1
